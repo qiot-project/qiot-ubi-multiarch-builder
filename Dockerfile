@@ -1,4 +1,4 @@
-FROM qiot-ubi-multiarch:1.0
+FROM quay.io/qiotcovid19/ubi-multiarch:v1.0.0
 RUN dnf -y install gcc zlib-devel glibc-static java-11-openjdk maven
 RUN dnf clean all
 RUN mkdir -p  /opt/graalvm

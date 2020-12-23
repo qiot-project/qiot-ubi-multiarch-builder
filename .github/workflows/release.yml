@@ -7,6 +7,10 @@ on:
   
   workflow_dispatch:
 
+env:
+  DOCKER_ARCH: aarch64
+  DOCKER_CONTAINER: quarkus-ubi-multiarch-builder
+  DOCKER_REPO: quay.io/qiotcovid19
 
 jobs:
   create_and_publish_release:
@@ -28,3 +32,19 @@ jobs:
           body: ""
           draft: false
           prerelease: false
+
+
+      - name: Build the Docker image
+        run: |
+            docker run --rm --privileged multiarch/qemu-user-static:register --reset
+            docker build -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}" --platform ${DOCKER_ARCH} --pull .
+
+      - name: Push To Quay
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v1
+        with:
+          image: ${{ env.DOCKER_CONTAINER }}
+          tag: ${{ steps.get_version.outputs.VERSION }}
+          registry: ${{ env.DOCKER_REPO }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}

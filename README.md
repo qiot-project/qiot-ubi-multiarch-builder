@@ -7,7 +7,7 @@ A project to create a quarkus native builder based on qiot-ubi-multiarch. This a
 
 ## Using the builder image to build a native quarkus binary
 
-Create a dockerfile for your project to do a chained build:
+1. Create a dockerfile for your project to do a chained build (eg. src/main/docker/Dockerfile.multiarch):
 
 ```
 FROM qiot-ubi-multiarch-builder:1.0 AS builder
@@ -33,3 +33,14 @@ USER 1001
 
 CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
 ```
+
+2. Configure docker to be able to run multiarch containers (the build script outputs details from the built container). This is not required when using docker for mac as the build environment.
+```
+docker run --rm --privileged multiarch/qemu-user-static:register --reset
+```
+
+3. Run a docker build from your application root directory
+```
+docker build -t <imagename>:<tag> -f src/main/docker/Dockerfile.multiarch
+```
+

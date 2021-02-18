@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_ARCH: aarch64
   DOCKER_CONTAINER: quarkus-ubi-multiarch-builder
-  DOCKER_REPO: quay.io/qiotcovid19
+  DOCKER_REPO: quay.io/qiot
 
 jobs:
   create_and_publish_release:

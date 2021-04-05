@@ -37,7 +37,7 @@ jobs:
       - name: Build the Docker image
         run: |
             docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            docker build -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}" --platform ${DOCKER_ARCH} --pull .
+            docker build --build-arg GRAALVM_VERSION=21.0.0.2 -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}" --platform ${DOCKER_ARCH} --pull .
 
       - name: Push To Quay
         id: push-to-quay

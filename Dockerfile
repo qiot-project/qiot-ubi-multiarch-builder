@@ -1,5 +1,5 @@
 FROM quay.io/qiot/ubi-multiarch:v1.0.0
-LABEL "arch"="aarch64"
+LABEL "architecture"="aarch64"
 LABEL "multiarch"="true"
 ARG GRAALVM_VERSION=21.0.0.2
 

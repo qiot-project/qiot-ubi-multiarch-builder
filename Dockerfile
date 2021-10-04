@@ -1,7 +1,7 @@
 FROM quay.io/qiot/ubi-multiarch:v1.0.0
 LABEL "architecture"="aarch64"
 LABEL "multiarch"="true"
-ARG GRAALVM_VERSION=21.0.0.2
+ARG GRAALVM_VERSION=21.2.0
 
 RUN dnf -y upgrade
 RUN dnf -y install gcc zlib-devel glibc-static java-11-openjdk maven

@@ -5,7 +5,7 @@ ARG GRAALVM_VERSION=21.2.0
 
 RUN dnf -y upgrade
 RUN dnf -y install gcc zlib-devel glibc-static java-11-openjdk maven
-RUN dnf install -y http://mirror.centos.org/centos/8/PowerTools/aarch64/os/Packages/libstdc++-static-8.3.1-5.1.el8.aarch64.rpm
+RUN dnf install -y http://mirror.centos.org/centos/8/PowerTools/aarch64/os/Packages/libstdc++-static-8.4.1-1.el8.aarch64.rpm
 RUN dnf clean all
 RUN mkdir -p  /opt/graalvm
 WORKDIR /opt/graalvm

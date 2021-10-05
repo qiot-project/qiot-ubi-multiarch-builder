@@ -1,4 +1,4 @@
-FROM quay.io/qiotproject/ubi-multiarch:v1.0.0
+FROM quay.io/qiotproject/ubi-multiarch:v1.0.2
 LABEL "architecture"="aarch64"
 LABEL "multiarch"="true"
 ARG GRAALVM_VERSION=21.2.0

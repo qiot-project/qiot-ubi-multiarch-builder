@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_ARCH: aarch64
   DOCKER_CONTAINER: quarkus-ubi-multiarch-builder
-  DOCKER_REPO: quay.io/qiot
+  DOCKER_REPO: quay.io/qiotproject
 
 jobs:
   create_and_publish_release:
@@ -46,5 +46,5 @@ jobs:
           image: ${{ env.DOCKER_CONTAINER }}
           tag: ${{ steps.get_version.outputs.VERSION }}
           registry: ${{ env.DOCKER_REPO }}
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}

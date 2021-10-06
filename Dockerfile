@@ -14,5 +14,5 @@ RUN curl -LJ https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$
          tar -xzvf /tmp/graalvm-ce-java11-linux-aarch64-$GRAALVM_VERSION.tar.gz && \
          rm /tmp/graalvm-ce-java11-linux-aarch64-$GRAALVM_VERSION.tar.gz
 ENV PATH=$PATH:/opt/graalvm/graalvm-ce-java11-$GRAALVM_VERSION/bin
-ENV JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 RUN gu install native-image

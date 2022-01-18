@@ -10,7 +10,7 @@ A project to create a quarkus native builder based on qiot-ubi-multiarch. This a
 1. Create a dockerfile for your project to do a chained build (eg. src/main/docker/Dockerfile.multiarch):
 
 ```
-FROM quay.io/qiotproject/quarkus-ubi-multiarch-builder:v21.2.0 AS builder
+FROM quay.io/qiotproject/quarkus-ubi-multiarch-builder:v21.2.1-java11 AS builder
 RUN mkdir -p /usr/src/app
 COPY pom.xml /usr/src/app/
 RUN mvn -f /usr/src/app/pom.xml -B de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
@@ -18,7 +18,7 @@ COPY src /usr/src/app/src
 RUN mvn -f /usr/src/app/pom.xml -Pnative clean package
 
 
-FROM quay.io/qiotproject/ubi-multiarch:v1.0.
+FROM quay.io/qiotproject/ubi-multiarch:v1.0.4
 WORKDIR /work/
 COPY --from=builder /usr/src/app/target/*-runner /work/application
 

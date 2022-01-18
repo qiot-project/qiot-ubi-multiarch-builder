@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: quarkus-native-multiarch-build
+spec:
+  params:
+    - default: 5g
+      name: memory
+      type: string
+  steps:
+    - args:
+        - '-Dmaven.repo.local=$(workspaces.maven-repo.path)'
+        - '-Bde.qaware.maven:go-offline-maven-plugin:1.2.6:resolve-dependencies'
+      command:
+        - /usr/bin/mvn
+      image: 'quay.io/qiotproject/quarkus-ubi-multiarch-builder:v21.2.1-java11'
+      name: mvn-offline-dependencies
+      resources: {}
+      workingDir: /workspace/source
+    - args:
+        - '-Dmaven.repo.local=$(workspaces.maven-repo.path)'
+        - '-Pnative'
+        - '-Dnative-image.xmx=$(inputs.params.memory)'
+        - '-Dnative-image.docker-build=true'
+        - '-DskipTests'
+        - clean
+        - package
+      command:
+        - /usr/bin/mvn
+      image: 'quay.io/qiotproject/quarkus-ubi-multiarch-builder:v21.2.1-java11'
+      name: mvn
+      resources: {}
+      workingDir: /workspace/source
+  workspaces:
+    - name: maven-repo
+    - description: The workspace consisting of maven project.
+      name: source

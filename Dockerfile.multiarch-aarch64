@@ -10,7 +10,7 @@ LABEL "multiarch"="true"
 
 RUN dnf -y upgrade
 RUN dnf -y install gcc glibc-static zlib-devel java-$JAVA_VERSION-openjdk-devel maven
-RUN dnf install -y http://mirror.centos.org/centos/$RHEL_VERSION/PowerTools/$DOCKER_ARCH/os/Packages/libstdc++-static-$LIBSTDC_VERSION.$DOCKER_ARCH.rpm
+RUN dnf install -y http://mirror.centos.org/centos/$RHEL_VERSION-stream/PowerTools/$DOCKER_ARCH/os/Packages/libstdc++-static-$LIBSTDC_VERSION.$DOCKER_ARCH.rpm
 RUN dnf clean all
 RUN mkdir -p  /opt/graalvm
 WORKDIR /opt/graalvm

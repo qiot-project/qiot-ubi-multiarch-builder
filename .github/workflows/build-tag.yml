@@ -27,8 +27,6 @@ jobs:
           echo "DOCKER_CONTAINER: $DOCKER_CONTAINER"
           echo "BASE_MULTIARCH_VERSION: $BASE_MULTIARCH_VERSION"
           echo "GRAALVM_VERSION: $GRAALVM_VERSION"
-          echo "RHEL_VERSION: $RHEL_VERSION"
-          echo "LIBSTDC_VERSION: $LIBSTDC_VERSION"
           echo "DOCKER_REPO: $DOCKER_REPO"
 
       - name: Get the version
@@ -38,7 +36,7 @@ jobs:
       - name: Build the Docker image - Java 11
         run: |
             docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=11 --build-arg RHEL_VERSION=${RHEL_VERSION} --build-arg LIBSTDC_VERSION=${LIBSTDC_VERSION} -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=11 -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}-java11" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
             docker tag $DOCKER_CONTAINER:${{ steps.get_version.outputs.VERSION }}-java11 $DOCKER_CONTAINER:latest-java11
       - name: Push To Quay - Java 11
         id: push-to-quay-java11
@@ -53,7 +51,7 @@ jobs:
       - name: Build the Docker image - Java 17
         run: |
             docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=17 --build-arg RHEL_VERSION=${RHEL_VERSION} --build-arg LIBSTDC_VERSION=${LIBSTDC_VERSION} -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=17 -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}-java17" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
             docker tag $DOCKER_CONTAINER:${{ steps.get_version.outputs.VERSION }}-java17 $DOCKER_CONTAINER:latest-java17
       - name: Push To Quay - Java 17
         id: push-to-quay-java17

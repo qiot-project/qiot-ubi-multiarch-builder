@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+  
+  workflow_dispatch:
+
+jobs:
+  create_and_publish_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+              
+      - name: Load environment variables from .env files 
+        uses: c-py/action-dotenv-to-setenv@v3
+        with:
+          env-file: variables.env
+        
+      - name: Test imported environment variables ARCH
+        shell: bash
+        run: |
+          echo "PROJECT_VERSION: $PROJECT_VERSION"
+          echo "DOCKER_ARCH: $DOCKER_ARCH"
+          echo "DOCKER_CONTAINER: $DOCKER_CONTAINER"
+          echo "BASE_MULTIARCH_VERSION: $BASE_MULTIARCH_VERSION"
+          echo "DOCKER_REPO: $DOCKER_REPO"
+
+      - name: Get the version
+        id: get_version
+        run: echo "::set-output name=VERSION::${GITHUB_REF##refs/tags/v}"
+
+      - name: Build the Docker image
+        run: |
+            docker run --rm --privileged multiarch/qemu-user-static:register --reset
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=21.2.0 -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            docker tag $DOCKER_CONTAINER:${{ steps.get_version.outputs.VERSION }} $DOCKER_CONTAINER:latest
+      - name: Push To Quay
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ env.DOCKER_CONTAINER }}
+          tags: ${{ steps.get_version.outputs.VERSION }} latest
+          registry: ${{ env.DOCKER_REPO }}
+          username: ${{ secrets.QUAY_ALL_USERNAME }}
+          password: ${{ secrets.QUAY_ALL_PASSWORD }}

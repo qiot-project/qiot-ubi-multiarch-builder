@@ -1,0 +1,45 @@
+name: Nightly Build (from Develop branch)
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 2 * * *'
+  
+  push:
+    paths-ignore:
+      - .github/workflows/**
+      - .gitignore
+      - LICENSE
+      - README.md
+      - release.sh
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Load environment variables from .env files 
+        uses: c-py/action-dotenv-to-setenv@v3
+        with:
+          env-file: variables.env
+        
+      - name: Test imported environment variables ARCH
+        shell: bash
+        run: |
+          echo "PROJECT_VERSION: $PROJECT_VERSION"
+          echo "DOCKER_ARCH: $DOCKER_ARCH"
+          echo "DOCKER_CONTAINER: $DOCKER_CONTAINER"
+          echo "BASE_MULTIARCH_VERSION: $BASE_MULTIARCH_VERSION"
+          echo "DOCKER_REPO: $DOCKER_REPO"
+
+      - name: Build the Docker image
+        run: |
+            docker run --rm --privileged multiarch/qemu-user-static:register --reset
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=21.2.0 -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            

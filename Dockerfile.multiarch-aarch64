@@ -1,0 +1,23 @@
+ARG BASE_MULTIARCH_VERSION
+FROM quay.io/qiotproject/ubi-multiarch:$BASE_MULTIARCH_VERSION
+ARG DOCKER_ARCH
+ARG GRAALVM_VERSION
+ARG JAVA_VERSION
+ARG RHEL_VERSION
+ARG LIBSTDC_VERSION
+LABEL "architecture"="$DOCKER_ARCH"
+LABEL "multiarch"="true"
+
+RUN dnf -y upgrade
+RUN dnf -y install gcc glibc-static zlib-devel java-$JAVA_VERSION-openjdk-devel maven
+RUN dnf install -y http://mirror.centos.org/centos/$RHEL_VERSION/PowerTools/$DOCKER_ARCH/os/Packages/libstdc++-static-$LIBSTDC_VERSION.$DOCKER_ARCH.rpm
+RUN dnf clean all
+RUN mkdir -p  /opt/graalvm
+WORKDIR /opt/graalvm
+RUN curl -LJ https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-$GRAALVM_VERSION/graalvm-ce-java$JAVA_VERSION-linux-$DOCKER_ARCH-$GRAALVM_VERSION.tar.gz \
+         -o /tmp/graalvm-ce-java$JAVA_VERSION-linux-$DOCKER_ARCH-$GRAALVM_VERSION.tar.gz && \
+         tar -xzvf /tmp/graalvm-ce-java$JAVA_VERSION-linux-$DOCKER_ARCH-$GRAALVM_VERSION.tar.gz && \
+         rm /tmp/graalvm-ce-java$JAVA_VERSION-linux-$DOCKER_ARCH-$GRAALVM_VERSION.tar.gz
+ENV PATH=$PATH:/opt/graalvm/graalvm-ce-java$JAVA_VERSION-$GRAALVM_VERSION/bin
+ENV JAVA_HOME=/usr/lib/jvm/java-$JAVA_VERSION-openjdk
+RUN gu install native-image

@@ -36,10 +36,14 @@ jobs:
           echo "DOCKER_ARCH: $DOCKER_ARCH"
           echo "DOCKER_CONTAINER: $DOCKER_CONTAINER"
           echo "BASE_MULTIARCH_VERSION: $BASE_MULTIARCH_VERSION"
+          echo "GRAALVM_VERSION: $GRAALVM_VERSION"
+          echo "RHEL_VERSION: $RHEL_VERSION"
+          echo "LIBSTDC_VERSION: $LIBSTDC_VERSION"
           echo "DOCKER_REPO: $DOCKER_REPO"
 
       - name: Build the Docker image
         run: |
             docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=21.2.0 -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=11 -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}-java11" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=17 -t "${DOCKER_CONTAINER}:${PROJECT_VERSION}-java17" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
             

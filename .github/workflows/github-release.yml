@@ -14,7 +14,7 @@ on:
       - release.sh
 
 jobs:
-  build:
+  create_and_publish_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

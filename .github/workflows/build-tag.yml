@@ -8,7 +8,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  create_and_publish_release:
+  build_container_image_from_release:
+    strategy:
+      matrix:
+        java-version: [${{ matrix.java-version }}, 17]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,32 +36,17 @@ jobs:
         id: get_version
         run: echo "::set-output name=VERSION::${GITHUB_REF##refs/tags/v}"
 
-      - name: Build the Docker image - Java 11
+      - name: Build the Docker image - Java ${{ matrix.java-version }}
         run: |
             docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=11 -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}-java11" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
-            docker tag $DOCKER_CONTAINER:${{ steps.get_version.outputs.VERSION }}-java11 $DOCKER_CONTAINER:latest-java11
-      - name: Push To Quay - Java 11
-        id: push-to-quay-java11
+            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=${{ matrix.java-version }} -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}-java${{ matrix.java-version }}" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
+            docker tag $DOCKER_CONTAINER:${{ steps.get_version.outputs.VERSION }}-java${{ matrix.java-version }} $DOCKER_CONTAINER:latest-java${{ matrix.java-version }}
+      - name: Push To Quay - Java ${{ matrix.java-version }}
+        id: push-to-quay
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ env.DOCKER_CONTAINER }}
-          tags: ${{ steps.get_version.outputs.VERSION }}-java11 latest-java11
-          registry: ${{ env.DOCKER_REPO }}
-          username: ${{ secrets.QUAY_ALL_USERNAME }}
-          password: ${{ secrets.QUAY_ALL_PASSWORD }}
-
-      - name: Build the Docker image - Java 17
-        run: |
-            docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            docker build --build-arg BASE_MULTIARCH_VERSION=${BASE_MULTIARCH_VERSION} --build-arg DOCKER_ARCH=${DOCKER_ARCH} --build-arg GRAALVM_VERSION=${GRAALVM_VERSION} --build-arg JAVA_VERSION=17 -t "${DOCKER_CONTAINER}:${{ steps.get_version.outputs.VERSION }}-java17" --platform ${DOCKER_ARCH} --pull -f Dockerfile.multiarch-aarch64 .
-            docker tag $DOCKER_CONTAINER:${{ steps.get_version.outputs.VERSION }}-java17 $DOCKER_CONTAINER:latest-java17
-      - name: Push To Quay - Java 17
-        id: push-to-quay-java17
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ env.DOCKER_CONTAINER }}
-          tags: ${{ steps.get_version.outputs.VERSION }}-java17 latest-java17
+          tags: ${{ steps.get_version.outputs.VERSION }}-java${{ matrix.java-version }} latest-java${{ matrix.java-version }}
           registry: ${{ env.DOCKER_REPO }}
           username: ${{ secrets.QUAY_ALL_USERNAME }}
           password: ${{ secrets.QUAY_ALL_PASSWORD }}
